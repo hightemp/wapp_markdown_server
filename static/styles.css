@@ -1,0 +1,9 @@
+body, html {
+    height: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.markdown-body {
+    width: 960px;
+}
