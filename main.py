@@ -24,10 +24,11 @@ app.config.from_mapping(config)
 MD_PATH = "./md"
 argv = sys.argv[1:]
 try:
-    opts, args = getopt.getopt(argv, 'm:s', ['md_path='])
-    if opts[0]:
-        print(opts[0][1]) 
-        MD_PATH = opts[0][1]
+    opts, args = getopt.getopt(argv, 'm', ['md_path='])
+    for o, a in opts:
+        if o == "-m":
+            print(">>>", a) 
+            MD_PATH = a
 except getopt.GetoptError:
     # Print a message or do something useful
     print('Something went wrong!')
