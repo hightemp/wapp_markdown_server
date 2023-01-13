@@ -1,0 +1,6 @@
+__pycache__
+database.db
+tmp
+build
+dist
+.env
