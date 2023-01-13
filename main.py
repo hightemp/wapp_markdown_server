@@ -10,6 +10,8 @@ import mimetypes
 import datetime
 from flaskext.markdown import Markdown
 import zipfile
+import getopt
+import sys
 import pydotenv
 env = pydotenv.Environment()
 
@@ -18,6 +20,18 @@ app = Flask(__name__)
 
 config = {}
 app.config.from_mapping(config)
+
+MD_PATH = "./md"
+argv = sys.argv[1:]
+try:
+    opts, args = getopt.getopt(argv, 'm:s', ['md_path='])
+    if opts[0]:
+        print(opts[0][1]) 
+        MD_PATH = opts[0][1]
+except getopt.GetoptError:
+    # Print a message or do something useful
+    print('Something went wrong!')
+    sys.exit(2)
 
 MD_PATH=env.get('MD_PATH', "./md")
 __DEBUG__ = env.get('__DEBUG__', False)
