@@ -4,11 +4,20 @@
 
 ## Вырианты запуска приложения
 
-### .env
+### С .env
 
 ```
 MD_PATH=/home/user/md
 ```
+
+### С параметром
+
+```
+dist/__main__ -b0.0.0.0:5022 -d /test/path
+wapp_markdown_server.bin -b0.0.0.0:5022 -d /test/path
+```
+
+## Сборка и запуск
 
 ### flask
 

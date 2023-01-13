@@ -12,6 +12,13 @@ from flaskext.markdown import Markdown
 import zipfile
 import getopt
 import sys
+import pkgutil
+import markdown as md
+from markdown import (
+    blockprocessors,
+    Extension,
+    preprocessors,
+)
 import pydotenv
 env = pydotenv.Environment()
 
@@ -22,23 +29,14 @@ config = {}
 app.config.from_mapping(config)
 
 MD_PATH = "./md"
-PORT = 5022
-argv = sys.argv[1:]
 try:
-    opts, args = getopt.getopt(argv, 'd:', ['mpath='])
-    for o, a in opts:
-        if o == "-d":
-            MD_PATH = a
-            # sys.argv = list(filter(lambda x: x[0]=="-d", sys.argv))
-        if o == "-p":
-            PORT = a
-    sys.argv = sys.argv[:1]
-except getopt.GetoptError:
-    # Print a message or do something useful
-    print('[E] Something went wrong!')
-    sys.exit(2)
+    iI = sys.argv.index("-d")
+    MD_PATH = sys.argv[iI+1]
+    del sys.argv[iI:iI+2]
+except:
+    pass
 
-MD_PATH=env.get('MD_PATH', "./md")
+MD_PATH=env.get('MD_PATH', MD_PATH)
 __DEBUG__ = env.get('__DEBUG__', False)
 STATIC_PATH = "/static"
 if (__DEBUG__):
@@ -49,6 +47,9 @@ oMarkdown = Markdown(app)
 def readfile(sFilePath):
     if (__DEBUG__):
         return open(sFilePath, 'rb').read()
+    elif getattr(sys, 'frozen', False):
+        print(sFilePath)
+        return pkgutil.get_data('main', sFilePath )
     else:
         with zipfile.ZipFile(os.path.dirname(__file__)) as z:
             # print(z.namelist())
@@ -83,14 +84,27 @@ def markdown_file(path):
         path = os.path.join(MD_PATH, path, "index.md")
     else:
         path = os.path.join(MD_PATH, path)
+    print("[>]", path)
     oR = re.search(r"\.md$", path)
     if oR:
-        mkd=open(path, "r").read()
-        return render_template("default.html", mkd=mkd, STATIC_PATH=STATIC_PATH)
+        mkdtext=open(path, "r").read()
+        mkd = md.Markdown()
+        mdhtml=mkd.convert(mkdtext)
+        return render_template("default.html", mdhtml=mdhtml, STATIC_PATH=STATIC_PATH)
     return abort(404)
 
-def run():
-    app.run(host='0.0.0.0', port=PORT)
+@app.route("/", methods=['GET', 'POST'])
+def index():
+    path = os.path.join(MD_PATH, "index.md")
+    if os.path.isfile(path):
+        mkdtext=open(path, "r").read()
+        mkd = md.Markdown()
+        mdhtml=mkd.convert(mkdtext)
+        return render_template("default.html", mdhtml=mdhtml, STATIC_PATH=STATIC_PATH)
+    return "<h1>INDEX</h1>"
 
-if __name__ == "__main__":
-    run()
+# def run():
+#     app.run(host='0.0.0.0')
+
+# if __name__ == "__main__":
+#     run()
