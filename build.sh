@@ -8,7 +8,7 @@ PYINSTALLER_DOCKER="docker run -v $PWD:/src fydeinc/pyinstaller "
 PYINSTALLER_DOCKER="docker run -v $PWD:/src/ cdrx/pyinstaller-linux:python3"
 PYINSTALLER_BUILD="docker build -t $CFILE/pyinstaller-linux:python3 . "
 PYINSTALLER_DOCKER="docker run -v $PWD:/src/ $CFILE/pyinstaller-linux:python3 "
-PYINSTALLER_DOCKER_PARAMS="-F --path . --add-data=templates:templates --add-data=static:static __main__.py"
+PYINSTALLER_DOCKER_PARAMS="-F -p . --add-data=templates:templates --add-data=static:static __main__.py"
 
 echo '__DEBUG__='>.env
 if [ "$1" == "flask" ]; then
@@ -24,7 +24,7 @@ elif [ "$1" == "pyinst" ]; then
     fi
 elif [ "$1" == "pyinst_docker" ]; then
     docker build -t $CFILE/pyinstaller-linux:python3 .
-    $PYINSTALLER_DOCKER $PYINSTALLER $PYINSTALLER_DOCKER_PARAMS
+    $PYINSTALLER_DOCKER "$PYINSTALLER $PYINSTALLER_DOCKER_PARAMS"
     cp dist/__main__ ../$CFILE.bin
     if [ "$2" == "run" ]; then
         ../$CFILE.bin  --bind 0.0.0.0:$PORT -w 10
