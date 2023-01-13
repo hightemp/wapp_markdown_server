@@ -21,13 +21,13 @@ gh release create $VERSION -t $VERSION -n "" --target main
 
 if [ "$1" == "pyinst" -o "$1" == "all" ]; then
     ./build.sh pyinst
-    cp dist/__main__ ../"{$CFILE}.bin"
-    gh release upload $VERSION ../"{$CFILE}.bin" --clobber
+    cp dist/__main__ ../"${CFILE}.bin"
+    gh release upload $VERSION ../"${CFILE}.bin" --clobber
 elif [ "$1" == "pyinst_docker" -o "$1" == "all" ]; then
     ./build.sh pyinst_docker
-    cp dist/__main__ ../"{$CFILE}__all.bin"
-    gh release upload $VERSION ../"{$CFILE}.bin" --clobber
+    cp dist/__main__ ../"${CFILE}__all.bin"
+    gh release upload $VERSION ../"${CFILE}.bin" --clobber
 elif [ "$1" == "zipapp" -o "$1" == "all" ]; then
     ./build.sh zipapp
-    gh release upload $VERSION ../"{$CFILE}.pyz" --clobber
+    gh release upload $VERSION ../"${CFILE}.pyz" --clobber
 fi
