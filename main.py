@@ -22,16 +22,20 @@ config = {}
 app.config.from_mapping(config)
 
 MD_PATH = "./md"
+PORT = 5022
 argv = sys.argv[1:]
 try:
-    opts, args = getopt.getopt(argv, 'm', ['md_path='])
+    opts, args = getopt.getopt(argv, 'd:', ['mpath='])
     for o, a in opts:
-        if o == "-m":
-            print(">>>", a) 
+        if o == "-d":
             MD_PATH = a
+            # sys.argv = list(filter(lambda x: x[0]=="-d", sys.argv))
+        if o == "-p":
+            PORT = a
+    sys.argv = sys.argv[:1]
 except getopt.GetoptError:
     # Print a message or do something useful
-    print('Something went wrong!')
+    print('[E] Something went wrong!')
     sys.exit(2)
 
 MD_PATH=env.get('MD_PATH', "./md")
@@ -84,3 +88,9 @@ def markdown_file(path):
         mkd=open(path, "r").read()
         return render_template("default.html", mkd=mkd, STATIC_PATH=STATIC_PATH)
     return abort(404)
+
+def run():
+    app.run(host='0.0.0.0', port=PORT)
+
+if __name__ == "__main__":
+    run()
