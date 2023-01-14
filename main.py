@@ -91,6 +91,11 @@ def markdown_file(path):
         mkd = md.Markdown()
         mdhtml=mkd.convert(mkdtext)
         return render_template("default.html", mdhtml=mdhtml, STATIC_PATH=STATIC_PATH)
+    else:
+        if os.path.isfile(path):
+            oR = Response(open(path, "rb").read(), mimetype=mimetypes.guess_type(path)[0])
+            oR.headers['Cache-Control'] = 'max-age=60480000, stale-if-error=8640000, must-revalidate'
+            return oR
     return abort(404)
 
 @app.route("/", methods=['GET', 'POST'])
