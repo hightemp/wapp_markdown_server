@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title></title>
+    <link rel="stylesheet" href="{{STATIC_PATH}}/styles.css">
+</head>
+<body class="wrapper">
+    <div class="left-panel">
+        {% for oMenuItem in aLeftMenu %}
+            <div><a href="?file={{oMenuItem[1]}}">{{oMenuItem[0]}}</a></div>
+        {% endfor %}
+    </div>
+    <div class="center-panel">
+        {% for oMenuItem in aFileMenu %}
+            <div><div class="spacer-{{oMenuItem[1]}}"></div><a href="{{oMenuItem[0]}}">{{oMenuItem[2]|safe}}</a></div>
+        {% endfor %}
+    </div>
+    <div class="right-panel">
+        {{sFileMarkdown|safe}}
+    </div>
+</body>
+</html>

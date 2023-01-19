@@ -4,6 +4,61 @@ body, html {
     justify-content: center;
 }
 
+body, html {
+    padding: 0px;
+    margin: 0px;
+}
+
 .markdown-body {
     width: 960px;
+}
+
+.wrapper {
+    position:absolute;
+    top: 0px;
+    left: 0px;
+    right: 0px;
+    bottom: 0px;
+    display: grid;
+    grid-template-columns: 300px 300px 1fr;
+}
+
+.left-panel {
+    padding: 10px;
+    overflow-y: scroll;
+}
+
+.center-panel {
+    padding: 10px;
+    overflow-y: scroll;
+}
+
+.right-panel {
+    padding: 10px;
+    overflow-y: scroll;
+}
+
+.spacer-1 {
+    width: 10px;
+    display: inline-block;
+}
+
+.spacer-2 {
+    width: 20px;
+    display: inline-block;
+}
+
+.spacer-3 {
+    width: 30px;
+    display: inline-block;
+}
+
+.spacer-4 {
+    width: 40px;
+    display: inline-block;
+}
+
+.spacer-5 {
+    width: 50px;
+    display: inline-block;
 }

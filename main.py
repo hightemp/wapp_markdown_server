@@ -3,6 +3,7 @@ from flask import render_template as render_template_default
 import os
 import re
 
+from flask_caching import Cache
 from flask import Response
 from jinja2 import Template, FunctionLoader, Environment, BaseLoader
 from flask import Flask
@@ -13,6 +14,9 @@ import zipfile
 import getopt
 import sys
 import pkgutil
+from os import walk
+import re
+from functools import reduce
 import markdown as md
 from markdown import (
     blockprocessors,
@@ -24,6 +28,7 @@ env = pydotenv.Environment()
 
 # NOTE: Переменные, Приложение flask(app)
 app = Flask(__name__)
+cache = Cache(app)
 
 config = {}
 app.config.from_mapping(config)
@@ -98,15 +103,83 @@ def markdown_file(path):
             return oR
     return abort(404)
 
+@cache.cached(timeout=50, key_prefix='markdown_files_menu')
+def fnPrepareMarkdownFilesListMenu(sDir=MD_PATH):
+    aExtFiles = []
+    for (dirpath, dirnames, filenames) in walk(sDir):
+        for sF in filenames:
+            sP = os.path.join(MD_PATH, sF)
+            sFC = open(sP).read()
+            m = re.search(r"# ([^\n]*)", sFC) 
+            sTitle = sP
+            if (m):
+                sTitle = m.group(1)
+            aExtFiles.append([sTitle, sP, sF])
+        for sD in dirnames:
+            print([sD])
+            aExtFiles.extend(fnPrepareMarkdownFilesListMenu(sD))        
+        break
+
+    return aExtFiles
+
+@cache.cached(timeout=50, key_prefix='markdown_file_menu')
+def fnPrepareMarkdownMenu(sFile):
+    aMenu = []
+    sFC = open(sFile).read()
+    iI=0
+    oM = re.findall(r"(#+) ([^\n]*)", sFC) 
+    if (oM):
+        for aItem in oM:
+            iI += 1
+            aMenu.append([
+                '#a'+str(iI),
+                len(aItem[0]),
+                aItem[1]
+            ])
+    return aMenu
+
 @app.route("/", methods=['GET', 'POST'])
 def index():
     path = os.path.join(MD_PATH, "index.md")
-    if os.path.isfile(path):
+    # if os.path.isfile(path):
+    #     mkdtext=open(path, "r").read()
+    #     mkd = md.Markdown()
+    #     mdhtml=mkd.convert(mkdtext)
+    #     return render_template("default.html", mdhtml=mdhtml, STATIC_PATH=STATIC_PATH)
+    # else:
+    
+    sFile = ""
+    if "file" in request.args:
+        sFile = request.args["file"]
+
+    aLeftMenu=fnPrepareMarkdownFilesListMenu()
+    aFileMenu=[]
+    sFileMarkdown=""
+
+    if sFile:
+        aFileMenu=fnPrepareMarkdownMenu(sFile)
         mkdtext=open(path, "r").read()
         mkd = md.Markdown()
         mdhtml=mkd.convert(mkdtext)
-        return render_template("default.html", mdhtml=mdhtml, STATIC_PATH=STATIC_PATH)
-    return "<h1>INDEX</h1>"
+        sFileMarkdown = mdhtml
+
+        global iI
+        iI = 0
+        def fnReducer(m): 
+            global iI
+            iI += 1
+            return '<a name="a'+ str(iI) +'"></a>' + m.group(0)
+        
+        # sFileMarkdown = reduce(fnReducer, re.findall(r"<h\d+", sFileMarkdown), sFileMarkdown)
+        sFileMarkdown = re.sub(r"<h\d+", fnReducer, sFileMarkdown)
+
+    return render_template(
+        "index.html", 
+        STATIC_PATH=STATIC_PATH, 
+        aLeftMenu=aLeftMenu,
+        aFileMenu=aFileMenu,
+        sFileMarkdown=sFileMarkdown
+    )
 
 # def run():
 #     app.run(host='0.0.0.0')
